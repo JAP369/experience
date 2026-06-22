@@ -9,24 +9,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login, devLogin, isAuthenticated } = useAuth();
+  const { login, devLogin, user } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    // Only redirect after mount to avoid SSR issues
-    if (isMounted && isAuthenticated) {
-      router.push("/dashboard");
+    // If user exists, redirect to dashboard
+    if (user) {
+      router.replace("/dashboard");
     }
-  }, [isAuthenticated, isMounted, router]);
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,14 +47,14 @@ export default function LoginPage() {
     router.push("/dashboard");
   };
 
-  // Don't render until mounted to avoid hydration issues
-  if (!isMounted) {
+  // Show loading state if user exists (will redirect)
+  if (user) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
         <Container>
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-silver">Loading...</p>
+            <p className="text-silver">Redirecting...</p>
           </div>
         </Container>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -22,26 +22,23 @@ import { InquiryStatus } from "@/types/database";
 import Link from "next/link";
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check auth client-side after mount
-    if (!isAuthenticated) {
-      router.push("/login");
-    } else {
-      setIsLoading(false);
+    // If somehow we don't have a user, redirect to login
+    if (!user) {
+      router.replace("/login");
     }
-  }, [isAuthenticated, router]);
+  }, [user, router]);
 
   const handleLogout = () => {
     logout();
-    router.push("/");
+    router.replace("/");
   };
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading state if no user
+  if (!user) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
         <Container>
@@ -85,7 +82,7 @@ export default function DashboardPage() {
   ];
 
   const getStatusBadge = (status: InquiryStatus) => {
-    const styles = {
+    const styles: Record<InquiryStatus, string> = {
       [InquiryStatus.Pending]: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
       [InquiryStatus.Approved]: "bg-green-500/10 text-green-500 border-green-500/20",
       [InquiryStatus.Completed]: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -106,7 +103,7 @@ export default function DashboardPage() {
         >
           <div>
             <h1 className="font-serif text-3xl sm:text-4xl text-foreground">
-              Welcome, {user?.full_name}
+              Welcome, {user.full_name}
             </h1>
             <p className="text-silver mt-1">Manage your events and bookings</p>
           </div>
