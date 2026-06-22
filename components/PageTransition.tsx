@@ -1,7 +1,8 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -11,39 +12,30 @@ interface PageTransitionProps {
 const pageVariants: Variants = {
   initial: {
     opacity: 0,
-    y: 10,
+    y: 8,
   },
   animate: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -10,
-    transition: {
       duration: 0.3,
-      ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
+      ease: "easeOut" as const,
     },
   },
 };
 
 export function PageTransition({ children, className = "" }: PageTransitionProps) {
+  const pathname = usePathname();
+
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key="page-content"
-        variants={pageVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        className={className}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
