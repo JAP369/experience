@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, User, LogOut } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/lib/auth";
 
 const navLinks = [
   { href: "/venues", label: "Venues" },
@@ -49,6 +50,7 @@ const mobileLinkVariants: Variants = {
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,6 +74,11 @@ export function Header() {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeMobileMenu();
   };
 
   return (
@@ -107,14 +114,36 @@ export function Header() {
 
             {/* Desktop CTA */}
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-              <Link href="/venues">
-                <Button variant="primary" size="sm">
-                  Book Now
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link href="/dashboard" className="flex items-center gap-2 text-sm text-silver hover:text-foreground transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                      <User className="w-4 h-4 text-accent" />
+                    </div>
+                    <span>{user?.full_name?.split(" ")[0] || "Dashboard"}</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="p-2 text-silver hover:text-red-400 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/venues">
+                    <Button variant="primary" size="sm">
+                      Book Now
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -173,24 +202,51 @@ export function Header() {
                 exit="closed"
                 className="flex flex-col gap-4 mt-8 w-full max-w-xs"
               >
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="w-full"
-                  onClick={closeMobileMenu}
-                >
-                  Sign In
-                </Button>
-                <Link href="/venues" className="w-full">
-                  <Button 
-                    variant="primary" 
-                    size="lg" 
-                    className="w-full"
-                    onClick={closeMobileMenu}
-                  >
-                    Book Now
-                  </Button>
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard" className="w-full">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        onClick={closeMobileMenu}
+                      >
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="w-full text-red-400 hover:text-red-300"
+                      onClick={handleLogout}
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" className="w-full">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        onClick={closeMobileMenu}
+                      >
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/venues" className="w-full">
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="w-full"
+                        onClick={closeMobileMenu}
+                      >
+                        Book Now
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </motion.div>
 
               {/* Decorative Element */}
