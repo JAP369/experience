@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -7,12 +8,9 @@ import {
   Users,
   Clock,
   CheckCircle,
-  XCircle,
-  AlertCircle,
   LogOut,
   User,
   Building,
-  Settings,
   ChevronRight,
 } from "lucide-react";
 import { Container } from "@/components/Container";
@@ -20,23 +18,41 @@ import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { DUMMY_INQUIRIES } from "@/data/inquiries";
 import { getVenueById } from "@/data/venues";
-import { InquiryStatus, EventType } from "@/types/database";
+import { InquiryStatus } from "@/types/database";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
-    router.push("/login");
-    return null;
-  }
+  useEffect(() => {
+    // Check auth client-side after mount
+    if (!isAuthenticated) {
+      router.push("/login");
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, router]);
 
   const handleLogout = () => {
     logout();
     router.push("/");
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <Container>
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-silver">Loading...</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   // Get user's inquiries (for demo, show all)
   const userInquiries = DUMMY_INQUIRIES;

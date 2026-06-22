@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Mail, Lock, AlertCircle, Loader2, Code } from "lucide-react";
 import { Container } from "@/components/Container";
@@ -15,12 +15,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.push("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only redirect after mount to avoid SSR issues
+    if (isMounted && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isMounted, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +51,20 @@ export default function LoginPage() {
     devLogin();
     router.push("/dashboard");
   };
+
+  // Don't render until mounted to avoid hydration issues
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <Container>
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-silver">Loading...</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20 flex items-center justify-center">
