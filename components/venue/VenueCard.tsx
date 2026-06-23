@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { MapPin, Users, Sparkles } from "lucide-react";
 import { Venue, PRICE_TIER_LABELS } from "@/types/database";
+import { useBooking } from "@/lib/booking-context";
 
 interface VenueCardProps {
   venue: Venue;
@@ -10,6 +11,13 @@ interface VenueCardProps {
 }
 
 export function VenueCard({ venue, onClick }: VenueCardProps) {
+  const { openBookingFlow } = useBooking();
+
+  const handleBookNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openBookingFlow(venue.id, venue.name);
+  };
+
   return (
     <motion.div
       layout
@@ -89,7 +97,7 @@ export function VenueCard({ venue, onClick }: VenueCardProps) {
             </div>
           )}
 
-          {/* View Details Link */}
+          {/* Actions */}
           <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
             <div className="flex items-center gap-1">
               {venue.rating && (
@@ -101,9 +109,12 @@ export function VenueCard({ venue, onClick }: VenueCardProps) {
                 </>
               )}
             </div>
-            <span className="text-sm text-accent group-hover:translate-x-1 transition-transform duration-200">
-              View Details →
-            </span>
+            <button
+              onClick={handleBookNow}
+              className="px-4 py-1.5 text-sm rounded-lg bg-accent text-background font-medium hover:bg-accent-hover transition-colors"
+            >
+              Book Now
+            </button>
           </div>
         </div>
       </div>

@@ -5,6 +5,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/PageTransition";
 import { AuthProvider } from "@/lib/auth";
+import { BookingProvider } from "@/lib/booking-context";
+import { BookingModal } from "@/components/booking/BookingModal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,11 +35,14 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <Header />
-          <PageTransition className="flex flex-col flex-1">
-            {children}
-          </PageTransition>
-          <Footer />
+          <BookingProvider>
+            <Header />
+            <PageTransition className="flex flex-col flex-1">
+              {children}
+            </PageTransition>
+            <Footer />
+            <BookingModal />
+          </BookingProvider>
         </AuthProvider>
       </body>
     </html>
